@@ -1,0 +1,13 @@
+This product includes software developed by César Leañez (@cesarsoftware.dev).
+
+Copyright (c) 2024 César Leañez (@cesarsoftware.dev)
+
+Licensed under the Modified MIT License. You may obtain a copy of the License at:
+
+https://opensource.org/licenses/MIT
+
+Attribution:
+Any derivative work or substantial use of the software must give clear attribution to the original author(s) as follows:
+   "Based on work by César Leañez (@cesarsoftware.dev) for the game 'Beware of the Guest'."
+
+This notice must be included in all copies or substantial portions of the Software.
