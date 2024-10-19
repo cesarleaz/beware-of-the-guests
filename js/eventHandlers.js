@@ -13,7 +13,6 @@ class Clickable {
     // Detectar clics en el área de la forma (dependiendo del tipo de forma)
     isClicked(mouseX, mouseY) {
         if (this.shape === "rect") {
-            // Detección de clic estándar para rectángulos
             return (
                 mouseX >= this.x &&
                 mouseX <= this.x + this.width &&
@@ -21,35 +20,32 @@ class Clickable {
                 mouseY <= this.y + this.height
             );
         } else if (this.shape === "circle") {
-            // Detección de clic para un círculo
-            const centerX = this.x + this.width / 2; // X del centro del círculo
-            const centerY = this.y + this.height / 2; // Y del centro del círculo
-            const radius = this.width / 2; // Asumimos que el círculo tiene width = height
+            const centerX = this.x + this.width / 2;
+            const centerY = this.y + this.height / 2;
+            const radius = this.width / 2;
             const distance = Math.sqrt(
                 (mouseX - centerX) ** 2 + (mouseY - centerY) ** 2
             );
-            return distance <= radius; // Está dentro del círculo si la distancia al centro es menor o igual al radio
-        } 
+            return distance <= radius;
+        }
         return false;
     }
 
-    // Actualiza la posición del botón en función del desplazamiento del fondo
-    update(canvasWidth, canvasHeight, backgroundOffsetX, backgroundOffsetY) {
-        this.x = this.originalPositionX - backgroundOffsetX;
-        this.y = this.originalPositionY - backgroundOffsetY;
+    // Actualiza la posición del botón en función del desplazamiento del fondo y limita dentro del background
+    update(scene) {
+        this.x = scene.x + this.originalPositionX;
+        this.y = scene.y + this.originalPositionY;
     }
 
     // Dibuja el botón dependiendo de su forma
     draw(ctx) {
         if (this.shape === "rect") {
-            // Dibujar rectángulo
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.width, this.height);
             ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
             ctx.fill();
             ctx.closePath();
         } else if (this.shape === "circle") {
-            // Dibujar un círculo
             const centerX = this.x + this.width / 2;
             const centerY = this.y + this.height / 2;
             const radius = this.width / 2;

@@ -118,7 +118,7 @@ function render() {
     buttons.forEach((b) => {
         if (import.meta.env.DEV)
             b.draw(ctx);
-        b.update(canvasWidth, canvasHeight, backgroundOffsetX, backgroundOffsetY)
+        b.update(scene)
     })
 
     // Repetir la animación en el siguiente frame
