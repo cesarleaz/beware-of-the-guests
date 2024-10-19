@@ -1,4 +1,5 @@
 import { setupEventHandlers } from "./eventHandlers.js";
+import { createParticles, renderParticles } from "./particles.js";
 import { SPRITE, setupSprites } from "./spritesSetup";
 
 const canvas = document.getElementById("gameCanvas");
@@ -93,10 +94,12 @@ const sceneBackground = new Background(
 );
 const scene = new Background(SPRITE.SCENE, SCENE_SCALE);
 
+const parallaxStrengthParitcles = parallaxStrength - .5
+
 // Función de renderizado
 function render() {
     // Limpiar el canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // Actualizar y dibujar las imágenes de fondo
     sceneBackground.update();
@@ -104,9 +107,13 @@ function render() {
     scene.update();
     scene.draw();
 
+    renderParticles(canvasWidth, canvasHeight, ctx,  mouseX, mouseY, parallaxStrength)
+
     // Repetir la animación en el siguiente frame
     requestAnimationFrame(render);
 }
+
+createParticles(canvas)
 
 // Iniciar el render loop
 render();
