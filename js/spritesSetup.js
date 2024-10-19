@@ -1,6 +1,4 @@
-const loadedSprites = new Map()
-
-export const Sprite = (id) => loadedSprites.get(id)
+export const SPRITE = {}
 
 export async function setupSprites(...sprites) {
     const loadSprites = sprites.map(sprite => {
@@ -11,7 +9,8 @@ export async function setupSprites(...sprites) {
         return new Promise((resolve, reject) => {
             image.onload = () => {
                 console.log('loaded')
-                loadedSprites.set(name, image)
+                const slug = name.toUpperCase()
+                SPRITE[slug] = image
                 resolve()
             };
             image.onerror = () => {
@@ -21,6 +20,4 @@ export async function setupSprites(...sprites) {
     });
 
     await Promise.all(loadSprites)
-
-    return Sprite
 }
