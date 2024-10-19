@@ -1,4 +1,5 @@
-import { setupEventHandlers } from "./eventHandlers.js";
+import { buttons, setupEventHandlers } from "./eventHandlers.js";
+import { renderGuests } from "./guest.js";
 import { createParticles, renderParticles } from "./particles.js";
 import { SPRITE, setupSprites } from "./spritesSetup";
 
@@ -25,7 +26,8 @@ console.log("started");
 // Cargar las imágenes
 await setupSprites(
     ["background", "images/scene-background.jpg"],
-    ["scene", "images/scene.png"]
+    ["scene", "images/scene.png"],
+    ["guest", "images/guest.png"]
 );
 
 console.log("loaded");
@@ -94,7 +96,7 @@ const sceneBackground = new Background(
 );
 const scene = new Background(SPRITE.SCENE, SCENE_SCALE);
 
-const parallaxStrengthParitcles = parallaxStrength - .5
+setupEventHandlers(canvas)
 
 // Función de renderizado
 function render() {
@@ -104,10 +106,20 @@ function render() {
     // Actualizar y dibujar las imágenes de fondo
     sceneBackground.update();
     sceneBackground.draw();
+
+    renderGuests(canvas, ctx)
+
+    // Actualizar y dibujar la imagen de escena
     scene.update();
     scene.draw();
 
-    renderParticles(canvasWidth, canvasHeight, ctx,  mouseX, mouseY, parallaxStrength)
+    renderParticles(canvasWidth, canvasHeight, ctx, mouseX, mouseY, parallaxStrength)
+
+    buttons.forEach((b) => {
+        if (import.meta.env.DEV)
+            b.draw(ctx);
+        b.update(canvasWidth, canvasHeight, backgroundOffsetX, backgroundOffsetY)
+    })
 
     // Repetir la animación en el siguiente frame
     requestAnimationFrame(render);
