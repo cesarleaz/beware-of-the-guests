@@ -65,14 +65,14 @@ class Clickable {
 }
 
 export const buttons = [
-    new Clickable("Emergency", 205, 430, 60, 60, "circle"),
-    new Clickable("Guest List", 240, 280, 100, 135),
-    new Clickable("1ST Folder", 1005, 58, 154, 135),
-    new Clickable("2ND Folder", 1005, 194, 154, 135),
-    new Clickable("3RD Folder", 1005, 330, 154, 135),
-    new Clickable("Open Door", 880, 506, 67, 67, "circle"),
-    new Clickable("Close Door", 963, 506, 67, 67, "circle"),
-    new Clickable("Checklist", 695, 540, 142, 152),
+    new Clickable("Emergency", 185, 395, 60, 60, "circle"),
+    new Clickable("Guest List", 225, 260, 85, 125),
+    new Clickable("1ST Folder", 928, 54, 140, 124),
+    new Clickable("2ND Folder", 928, 180, 140, 124),
+    new Clickable("3RD Folder", 928, 305, 140, 124),
+    new Clickable("Open Door", 810, 470, 60, 60, "circle"),
+    new Clickable("Close Door", 890, 470, 60, 60, "circle"),
+    new Clickable("Checklist", 642, 500, 126, 142),
 ];
 
 // Configurar los manejadores de eventos para los clics

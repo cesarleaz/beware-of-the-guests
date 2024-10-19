@@ -5,7 +5,6 @@ import { SPRITE, setupSprites } from "./spritesSetup";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-let canvasWidth, canvasHeight;
 
 // Ajustar el canvas a la resolución deseada
 canvas.width = 800;
@@ -16,10 +15,10 @@ let mouseX = 0;
 let mouseY = 0;
 
 // Escalar la imagen en función de la variable 'scale'
-const backgroundWidth = 1920;
-const backgroundHeight = 1080;
+const BACKGROUND_WIDTH = 1920;
+const BACKGROUND_HEIGHT = 1080;
 const BACKGROUND_SCALE = 0.65;
-const SCENE_SCALE = 0.65;
+const SCENE_SCALE = 0.6;
 
 console.log("started");
 
@@ -33,7 +32,7 @@ await setupSprites(
 console.log("loaded");
 
 // Profundidad del parallax
-const parallaxStrength = .15; // Controla la intensidad del desplazamiento
+const parallaxStrength = .35; // Controla la intensidad del desplazamiento
 
 // Variables para el desplazamiento del fondo
 let backgroundOffsetX = 0;
@@ -42,23 +41,23 @@ let backgroundOffsetY = 0;
 // Capturar movimiento del mouse y actualizar las coordenadas
 canvas.addEventListener("mousemove", (event) => {
     const rect = canvas.getBoundingClientRect();
-    mouseX = event.clientX - rect.left; // Calcula la posición del mouse relativa al canvas
+    mouseX = event.clientX - rect.left;
     mouseY = event.clientY - rect.top;
 
     // Calcular el desplazamiento del fondo basado en la posición del mouse
     backgroundOffsetX =
-        (mouseX / canvasWidth) * (backgroundWidth - canvasWidth) * parallaxStrength;
+        (mouseX / canvas.width) * (BACKGROUND_WIDTH - canvas.width) * parallaxStrength;
     backgroundOffsetY =
-        (mouseY / canvasHeight) *
-        (backgroundHeight - canvasHeight) *
+        (mouseY / canvas.height) *
+        (BACKGROUND_HEIGHT - canvas.height) *
         parallaxStrength;
 });
 
 class Background {
     constructor(image, scale = 1, isStatic = false) {
         this.image = image;
-        this.width = backgroundWidth * scale;
-        this.height = backgroundHeight * scale;
+        this.width = BACKGROUND_WIDTH * scale;
+        this.height = BACKGROUND_HEIGHT * scale;
         this.isStatic = isStatic;
 
         if (isStatic) {
@@ -78,10 +77,10 @@ class Background {
         this.y = -backgroundOffsetY;
         // Limitar el desplazamiento dentro del canvas
         if (this.x > 0) this.x = 0; // No permitir que el fondo se desplace hacia la derecha
-        if (this.x < -this.width + canvasWidth) this.x = -this.width + canvasWidth; // No permitir que el fondo se desplace hacia la izquierda
+        if (this.x < -this.width + canvas.width) this.x = -this.width + canvas.width; // No permitir que el fondo se desplace hacia la izquierda
         if (this.y > 0) this.y = 0; // No permitir que el fondo se desplace hacia abajo
-        if (this.y < -this.height + canvasHeight)
-            this.y = -this.height + canvasHeight; // No permitir que el fondo se desplace hacia arriba
+        if (this.y < -this.height + canvas.height)
+            this.y = -this.height + canvas.height; // No permitir que el fondo se desplace hacia arriba
     }
 
     draw() {
@@ -101,7 +100,7 @@ setupEventHandlers(canvas)
 // Función de renderizado
 function render() {
     // Limpiar el canvas
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Actualizar y dibujar las imágenes de fondo
     sceneBackground.update();
@@ -113,7 +112,7 @@ function render() {
     scene.update();
     scene.draw();
 
-    renderParticles(canvasWidth, canvasHeight, ctx, mouseX, mouseY, parallaxStrength)
+    renderParticles(canvas.width, canvas.height, ctx, mouseX, mouseY, parallaxStrength)
 
     buttons.forEach((b) => {
         if (import.meta.env.DEV)
@@ -130,23 +129,3 @@ createParticles(canvas)
 // Iniciar el render loop
 render();
 
-window.addEventListener("resize", windowResize);
-
-function windowResize() {
-    // Establecer la altura del canvas como el alto de la ventana
-    canvasHeight = window.innerHeight;
-
-    // Mantener la relación de aspecto 16:9
-    canvasWidth = canvasHeight * (16 / 9);
-
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-
-    // Recalcular el tamaño de los fondos
-    sceneBackground.width = backgroundWidth * BACKGROUND_SCALE;
-    sceneBackground.height = backgroundHeight * BACKGROUND_SCALE;
-    scene.width = backgroundWidth * SCENE_SCALE;
-    scene.height = backgroundHeight * SCENE_SCALE;
-}
-
-windowResize();
