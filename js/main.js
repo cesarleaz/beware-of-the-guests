@@ -1,6 +1,7 @@
 import { buttons, setupEventHandlers } from "./eventHandlers.js";
 import { renderGuests } from "./guest.js";
 import { createParticles, renderParticles } from "./particles.js";
+import { setupSounds } from "./soundsSetup.js";
 import { SPRITE, setupSprites } from "./spritesSetup";
 
 const canvas = document.getElementById("gameCanvas");
@@ -24,9 +25,9 @@ console.log("started");
 
 // Cargar las imágenes
 await setupSprites(
-    ["background", "images/scene-background.jpg"],
-    ["scene", "images/scene.png"],
-    ["guest", "images/guest.png"]
+    ["background", "images/scene-background.avif"],
+    ["scene", "images/scene.avif"],
+    ["guest", "images/guest.avif"]
 );
 
 console.log("loaded");
