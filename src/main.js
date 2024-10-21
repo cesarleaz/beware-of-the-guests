@@ -3,7 +3,7 @@ import { buttons, setupEventHandlers } from "./eventHandlers.js";
 import { renderGuests } from "./guest.js";
 import { createParticles, renderParticles } from "./particles.js";
 import { setupSounds, sounds } from "./soundsSetup.js";
-import { SPRITE, setupSprites } from "./spritesSetup";
+import { SPRITE, setupSprites } from "./spritesSetup.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
