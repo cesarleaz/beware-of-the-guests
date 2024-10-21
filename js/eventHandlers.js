@@ -76,8 +76,8 @@ export const buttons = [
     new Clickable("folder1", 928, 54, 140, 124, "rect", handleOpenFolder("folder1")),
     new Clickable("folder2", 928, 180, 140, 124, "rect", handleOpenFolder("folder2")),
     new Clickable("folder3", 928, 305, 140, 124, "rect", handleOpenFolder("folder3")),
-    new Clickable("Open Door", CONFIG.OPEN_DOOR_X, CONFIG.BUTTON_DOOR_Y, CONFIG.BUTTON_DOOR_WIDTH, CONFIG.BUTTON_DOOR_WIDTH, "circle", handleOpenDoor(true)),
-    new Clickable("Close Door", CONFIG.CLOSE_DOOR_X, CONFIG.BUTTON_DOOR_Y, CONFIG.BUTTON_DOOR_WIDTH, CONFIG.BUTTON_DOOR_WIDTH, "circle", handleOpenDoor(false)),
+    new Clickable("Open Door", CONFIG.OPEN_DOOR_X, CONFIG.BUTTON_DOOR_Y, CONFIG.BUTTON_DOOR_WIDTH, CONFIG.BUTTON_DOOR_WIDTH, "circle", handleCloseDoor(false)),
+    new Clickable("Close Door", CONFIG.CLOSE_DOOR_X, CONFIG.BUTTON_DOOR_Y, CONFIG.BUTTON_DOOR_WIDTH, CONFIG.BUTTON_DOOR_WIDTH, "circle", handleCloseDoor(true)),
     new Clickable("Checklist", 642, 500, 126, 142),
 ];
 
@@ -132,7 +132,7 @@ function handleOpenFolder(folderId) {
 }
 
 // Buttons
-function handleOpenDoor(state) {
+function handleCloseDoor(state) {
     return () => {
         if (CONFIG.CLOSED_DOOR === state) return;
         eventWithSound(state ? 'open-button' : 'close-button', () => {

@@ -39,7 +39,8 @@ setupSounds(
     ['open-button', 'sounds/open-button.mp3'],
     ['close-button', 'sounds/close-button.mp3'],
     ['alarm', 'sounds/alarm.mp3'],
-    ['blind', 'sounds/blind.mp3']
+    ['blind', 'sounds/blind.mp3'],
+    ['door', 'sounds/door.mp3'],
 )
 
 // Profundidad del parallax
@@ -106,7 +107,7 @@ class DoorLamp {
         this.width = CONFIG.BUTTON_DOOR_WIDTH;
     }
     getPositionXRelative() {
-        return CONFIG.CLOSED_DOOR ? CONFIG.OPEN_DOOR_X : CONFIG.CLOSE_DOOR_X
+        return CONFIG.CLOSED_DOOR ? CONFIG.CLOSE_DOOR_X : CONFIG.OPEN_DOOR_X
     }
     getGradient() {
         const gradient = ctx.createRadialGradient(
@@ -118,7 +119,7 @@ class DoorLamp {
             this.width / 2
         );
         const isClosed = CONFIG.CLOSED_DOOR
-        gradient.addColorStop(0, isClosed ? "#CDDC39AA" : '#FF5722AA');
+        gradient.addColorStop(0, isClosed ? '#FF5722AA' : "#CDDC39AA");
         gradient.addColorStop(1, "transparent");
         return gradient;
     }
@@ -267,7 +268,7 @@ function render() {
     sceneBackground.update();
     sceneBackground.draw();
 
-    renderGuests(canvas, ctx)
+    renderGuests(canvas, ctx, scene)
 
     // Actualizar y dibujar la imagen de escena
     blind.draw()
