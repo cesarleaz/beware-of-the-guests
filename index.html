@@ -1,14 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beware Of The Guests by @cesarsoftware.dev</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="wrapper">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="backdrop"></div>
+        <button id="btn-pause">
+            Pause
+        </button>
+        <div id="guest-list">
+            <div class="btn-toggle" data-event-label="Guest List"></div>
+        </div>
+
+        <div id="folder">
+            <div class="folder-header">
+                <strong>void</strong>
+                <div class="btn-toggle" id="close-folder" data-event-label=""></div>
+            </div>
+
+            <div class="folder-content">
+                <div class="tabs">
+                    <button class="tab selected">
+                        <span>File 1</span>
+                    </button>
+                    <button class="tab">
+                        <span>File 2</span>
+                    </button>
+                    <button class="tab">
+                        <span>File 3</span>
+                    </button>
+
+                    <div class="tab"></div>
+
+                    <div class="content1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="/js/main.js"></script>
 </body>
+
 </html>

@@ -1,7 +1,8 @@
+import { CONFIG } from "./config.js";
 import { buttons, setupEventHandlers } from "./eventHandlers.js";
 import { renderGuests } from "./guest.js";
 import { createParticles, renderParticles } from "./particles.js";
-import { setupSounds } from "./soundsSetup.js";
+import { setupSounds, sounds } from "./soundsSetup.js";
 import { SPRITE, setupSprites } from "./spritesSetup";
 
 const canvas = document.getElementById("gameCanvas");
@@ -27,10 +28,19 @@ console.log("started");
 await setupSprites(
     ["background", "images/scene-background.avif"],
     ["scene", "images/scene.avif"],
-    ["guest", "images/guest.avif"]
+    ["guest", "images/guest.avif"],
+    ["emergency", "images/emergency.avif"],
+    ["blind", "images/blind.avif"],
 );
 
-console.log("loaded");
+setupSounds(
+    ['sheet', 'sounds/sheet.mp3'],
+    ['folder', 'sounds/folder.mp3'],
+    ['open-button', 'sounds/open-button.mp3'],
+    ['close-button', 'sounds/close-button.mp3'],
+    ['alarm', 'sounds/alarm.mp3'],
+    ['blind', 'sounds/blind.mp3']
+)
 
 // Profundidad del parallax
 const parallaxStrength = .35; // Controla la intensidad del desplazamiento
@@ -89,6 +99,156 @@ class Background {
     }
 }
 
+class DoorLamp {
+    constructor() {
+        this.x = this.getPositionXRelative();
+        this.y = CONFIG.BUTTON_DOOR_Y;
+        this.width = CONFIG.BUTTON_DOOR_WIDTH;
+    }
+    getPositionXRelative() {
+        return CONFIG.CLOSED_DOOR ? CONFIG.OPEN_DOOR_X : CONFIG.CLOSE_DOOR_X
+    }
+    getGradient() {
+        const gradient = ctx.createRadialGradient(
+            this.x + this.width / 2,
+            this.y + this.width / 2,
+            0,
+            this.x + this.width / 2,
+            this.y + this.width / 2,
+            this.width / 2
+        );
+        const isClosed = CONFIG.CLOSED_DOOR
+        gradient.addColorStop(0, isClosed ? "#CDDC39AA" : '#FF5722AA');
+        gradient.addColorStop(1, "transparent");
+        return gradient;
+    }
+    update() {
+        this.x = scene.x + this.getPositionXRelative();
+        this.y = scene.y + CONFIG.BUTTON_DOOR_Y;
+    }
+    draw() {
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.width / 2;
+        const radius = this.width / 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.getGradient();
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+
+class EmergencyLamp {
+    constructor() {
+        this.positionX = 154;
+        this.positionY = 314;
+        this.x = this.positionX;
+        this.y = this.positionY;
+        this.width = 44;
+        this.rotation = 0;
+        this.speed = 4;
+
+        this.maxOpacity = 1
+        this.minOpacity = 0.25
+        this.losing = true
+        this.opacity = this.minOpacity
+        this.speedOpacity = 0.02
+    }
+
+    getLinearGradient() {
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.width / 2;
+        const radius = this.width / 2;
+
+        // Cálculo de las coordenadas del gradiente
+        const angleRad = (this.rotation * Math.PI) / 180;
+        const startX = centerX + Math.cos(angleRad) * radius;
+        const startY = centerY + Math.sin(angleRad) * radius;
+        const endX = centerX - Math.cos(angleRad) * radius;
+        const endY = centerY - Math.sin(angleRad) * radius;
+
+        // Crear el gradiente lineal
+        const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
+
+        // Colores del gradiente
+        gradient.addColorStop(0, "transparent");
+        gradient.addColorStop(0.5, "#CDDC3944");
+        gradient.addColorStop(1, "transparent");
+
+        return gradient;
+    }
+
+    update() {
+        this.x = scene.x + this.positionX;
+        this.y = scene.y + this.positionY;
+
+        // Incrementar la rotación para animar
+        this.rotation = (this.rotation + this.speed) % 360; // Rota continuamente de 0 a 360
+
+        // Incrementar o disminuir la opacidad del negro
+        if (this.losing) {
+            this.opacity += this.speedOpacity; // Incrementa la opacidad del negro
+        } else {
+            this.opacity -= this.speedOpacity; // Disminuye la opacidad del negro
+        }
+
+        // Cambia la dirección de la opacidad al alcanzar los límites
+        if (this.opacity > this.maxOpacity) {
+            this.losing = false; // Deja de aumentar la opacidad
+        } else if (this.opacity < this.minOpacity) {
+            this.losing = true; // Vuelve a aumentar la opacidad
+        }
+    }
+
+    draw() {
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.width / 2;
+        const radius = this.width / 2;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.getLinearGradient();
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.globalAlpha = this.opacity;
+        ctx.drawImage(SPRITE.EMERGENCY, scene.x, scene.y, scene.width, scene.height)
+        ctx.globalAlpha = 1.0;
+    }
+}
+
+class Blind {
+    constructor() {
+        this.positionX = 300;
+        this.positionY = 0;
+        this.currentPositionY = 0
+        this.width = 550
+        this.height = 550
+        this.closedY = 0
+        this.openY = -this.height
+        this.y = this.closedY
+        this.x = canvas.width / 4.80
+        this.speed = 10
+    }
+    update() {
+        this.x = scene.x + this.positionX
+        this.y = (scene.y + this.positionY) + this.currentPositionY
+
+
+        if (!CONFIG.EMERGENCY && this.y >= this.openY) {
+            this.currentPositionY -= this.speed
+        } else if (this.y < this.closedY) {
+            this.currentPositionY += this.speed
+        }
+    }
+    draw() {
+        ctx.drawImage(SPRITE.BLIND, this.x, this.y, this.width, this.height)
+    }
+}
+
+const blind = new Blind()
+const doorLamp = new DoorLamp()
+const emergencyLamp = new EmergencyLamp()
 const sceneBackground = new Background(
     SPRITE.BACKGROUND,
     BACKGROUND_SCALE,
@@ -110,8 +270,19 @@ function render() {
     renderGuests(canvas, ctx)
 
     // Actualizar y dibujar la imagen de escena
+    blind.draw()
+    blind.update()
+
     scene.update();
     scene.draw();
+
+    doorLamp.draw()
+    doorLamp.update()
+
+    if (CONFIG.EMERGENCY) {
+        emergencyLamp.draw()
+        emergencyLamp.update()
+    }
 
     renderParticles(canvas.width, canvas.height, ctx, mouseX, mouseY, parallaxStrength)
 

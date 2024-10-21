@@ -5,7 +5,6 @@ export async function setupSprites(...sprites) {
         const [name, url] = sprite
         const image = new Image();
         image.src = url;
-        console.log({ name, url })
         return new Promise((resolve, reject) => {
             image.onload = () => {
                 console.log('loaded')
