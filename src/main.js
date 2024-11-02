@@ -1,9 +1,12 @@
+import { renderAgent } from "./agent.js";
 import { CONFIG } from "./config.js";
 import { buttons, setupEventHandlers } from "./eventHandlers.js";
 import { renderGuests } from "./guest.js";
 import { createParticles, renderParticles } from "./particles.js";
+import { Phone } from "./phone.js";
 import { setupSounds, sounds } from "./soundsSetup.js";
 import { SPRITE, setupSprites } from "./spritesSetup.js";
+import { $ } from "./utils.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -26,14 +29,17 @@ console.log("started");
 
 // Cargar las imágenes
 await setupSprites(
+    ["logo", "images/logo.avif"],
     ["background", "images/scene-background.avif"],
     ["scene", "images/scene.avif"],
     ["guest", "images/guest.avif"],
     ["emergency", "images/emergency.avif"],
     ["blind", "images/blind.avif"],
+    ["agent", "images/agent.avif"],
+    ['phone', 'images/phone.avif'],
 );
 
-setupSounds(
+await setupSounds(
     ['sheet', 'sounds/sheet.mp3'],
     ['folder', 'sounds/folder.mp3'],
     ['open-button', 'sounds/open-button.mp3'],
@@ -41,13 +47,32 @@ setupSounds(
     ['alarm', 'sounds/alarm.mp3'],
     ['blind', 'sounds/blind.mp3'],
     ['door', 'sounds/door.mp3'],
+    ['steps', 'sounds/steps.mp3'],
+    ['dialog1', 'sounds/dialog1.mp3'],
+    ['dialog2', 'sounds/dialog2.mp3'],
+    ['dialog3', 'sounds/dialog3.mp3'],
+    ['dialog4', 'sounds/dialog4.mp3'],
+    ['dialog5', 'sounds/dialog5.mp3'],
+    ['dialog6', 'sounds/dialog6.mp3'],
+    ['dialog7', 'sounds/dialog7.mp3'],
+    ['dialog8', 'sounds/dialog8.mp3'],
+    ['dialog9', 'sounds/dialog9.mp3'],
+    ['grab-the-phone', 'sounds/grab-the-phone.mp3'],
+    ['number1', 'sounds/number1.mp3'],
+    ['number2', 'sounds/number2.mp3'],
+    ['number3', 'sounds/number3.mp3'],
+    ['number4', 'sounds/number4.mp3'],
+    ['number5', 'sounds/number5.mp3'],
+    ['number6', 'sounds/number6.mp3'],
+    ['number7', 'sounds/number7.mp3'],
+    ['call', 'sounds/call.mp3'],
 )
 
 // Profundidad del parallax
 const parallaxStrength = .35; // Controla la intensidad del desplazamiento
 
 // Variables para el desplazamiento del fondo
-let backgroundOffsetX = 0;
+let backgroundOffsetX = 180;
 let backgroundOffsetY = 0;
 
 // Capturar movimiento del mouse y actualizar las coordenadas
@@ -71,14 +96,8 @@ class Background {
         this.width = BACKGROUND_WIDTH * scale;
         this.height = BACKGROUND_HEIGHT * scale;
         this.isStatic = isStatic;
-
-        if (isStatic) {
-            this.x = 0
-            this.y = 0
-        } else {
-            this.x = this.width / 2;
-            this.y = this.height / 2;
-        }
+        this.x = 0
+        this.y = 0
     }
 
     update() {
@@ -230,20 +249,34 @@ class Blind {
         this.y = this.closedY
         this.x = canvas.width / 4.80
         this.speed = 10
+
+        // Logo
+        this.hiddenLogo = false
     }
     update() {
         this.x = scene.x + this.positionX
         this.y = (scene.y + this.positionY) + this.currentPositionY
 
-
-        if (!CONFIG.EMERGENCY && this.y >= this.openY) {
+        if (!CONFIG.EMERGENCY && CONFIG.PLAYING && this.y >= this.openY) {
             this.currentPositionY -= this.speed
         } else if (this.y < this.closedY) {
             this.currentPositionY += this.speed
         }
+
+        if (CONFIG.PLAYING && this.y < this.openY) {
+            this.hiddenLogo = true
+        }
+        else if (!CONFIG.PLAYING && this.y < this.closedY) {
+            this.hiddenLogo = false
+        }
     }
     draw() {
         ctx.drawImage(SPRITE.BLIND, this.x, this.y, this.width, this.height)
+
+        if (!CONFIG.PLAYING || !this.hiddenLogo) {
+            const scale = 50
+            ctx.drawImage(SPRITE.LOGO, this.x + (scale / 2), this.y + (scale / 2), this.width - scale, this.height - scale)
+        }
     }
 }
 
@@ -256,6 +289,7 @@ const sceneBackground = new Background(
     true // Establecer en estático
 );
 const scene = new Background(SPRITE.SCENE, SCENE_SCALE);
+const phone = new Phone(SCENE_SCALE, scene)
 
 setupEventHandlers(canvas)
 
@@ -268,7 +302,8 @@ function render() {
     sceneBackground.update();
     sceneBackground.draw();
 
-    renderGuests(canvas, ctx, scene)
+    renderAgent(ctx, scene)
+    renderGuests(ctx, scene)
 
     // Actualizar y dibujar la imagen de escena
     blind.draw()
@@ -277,21 +312,28 @@ function render() {
     scene.update();
     scene.draw();
 
-    doorLamp.draw()
-    doorLamp.update()
+    if (CONFIG.PLAYING) {
+        doorLamp.draw()
+        doorLamp.update()
+    }
 
     if (CONFIG.EMERGENCY) {
         emergencyLamp.draw()
         emergencyLamp.update()
     }
 
+    phone.update(scene)
+    phone.draw(ctx)
+
     renderParticles(canvas.width, canvas.height, ctx, mouseX, mouseY, parallaxStrength)
 
-    buttons.forEach((b) => {
-        if (import.meta.env.DEV)
-            b.draw(ctx);
-        b.update(scene)
-    })
+    if (CONFIG.PLAYING) {
+        buttons.forEach((b) => {
+            if (import.meta.env.DEV)
+                b.draw(ctx);
+            b.update(scene)
+        })
+    }
 
     // Repetir la animación en el siguiente frame
     requestAnimationFrame(render);
@@ -302,3 +344,4 @@ createParticles(canvas)
 // Iniciar el render loop
 render();
 
+$('.loading').remove()

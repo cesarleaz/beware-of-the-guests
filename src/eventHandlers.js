@@ -79,6 +79,7 @@ export const buttons = [
     new Clickable("Open Door", CONFIG.OPEN_DOOR_X, CONFIG.BUTTON_DOOR_Y, CONFIG.BUTTON_DOOR_WIDTH, CONFIG.BUTTON_DOOR_WIDTH, "circle", handleCloseDoor(false)),
     new Clickable("Close Door", CONFIG.CLOSE_DOOR_X, CONFIG.BUTTON_DOOR_Y, CONFIG.BUTTON_DOOR_WIDTH, CONFIG.BUTTON_DOOR_WIDTH, "circle", handleCloseDoor(true)),
     new Clickable("Checklist", 642, 500, 126, 142),
+    new Clickable("Phone", 216, 465, 186, 118, 'rect', handleGrabThePhone),
 ];
 
 // Configurar los manejadores de eventos para los clics
@@ -96,9 +97,9 @@ export function setupEventHandlers(canvas) {
         });
     });
 
-    $$('.btn-toggle').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const button = buttons.find(b => b.label === event.target.dataset.eventLabel)
+    $$('[data-event-label]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const button = buttons.find(b => b.label === e.target.dataset.eventLabel)
             button?.onClick?.()
         })
     })
@@ -151,6 +152,24 @@ function handleEmergency() {
     CONFIG.EMERGENCY = true
 }
 
+const $phone = $('#phone')
+
+function handleGrabThePhone() {
+    if (CONFIG.USING_PHONE) {
+        CONFIG.USING_PHONE = false
+        $phone.style.visibility = 'hidden'
+        $backdrop.style.visibility = 'hidden'
+        return;
+    }
+
+    const effect = sounds.get('grab-the-phone')
+    CONFIG.USING_PHONE = true
+    effect.loop = true
+    effect.play()
+    $phone.style.visibility = 'visible'
+    $backdrop.style.visibility = 'visible'
+}
+
 // Utils
 function eventWithSound(soundId, listener) {
     return () => {
@@ -161,3 +180,15 @@ function eventWithSound(soundId, listener) {
         listener?.()
     }
 }
+
+const $gameMenu = $('#gameMenu')
+const $pause = $('#btn-pause')
+
+$('#newGame').addEventListener('click', () => {
+    const blind = sounds.get('blind')
+    blind.play()
+    CONFIG.IS_INITIAL = true
+    CONFIG.PLAYING = true
+    $gameMenu.style.visibility = 'hidden'
+    $pause.style.visibility = 'visible'
+})

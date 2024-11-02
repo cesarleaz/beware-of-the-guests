@@ -1,9 +1,19 @@
 export const sounds = new Map()
 
-export function setupSounds(...audios) {
-    audios.forEach(audio => {
-        const [name, url] = audio
-        const sound = new Audio(url);
-        sounds.set(name, sound)
+export async function setupSounds(...audios) {
+    const loadSounds = audios.map(sound => {
+        const [name, url] = sound
+        const audio = new Audio(url);
+        return new Promise((res, rej) => {
+            audio.oncanplaythrough = () => {
+                sounds.set(name, audio)
+                res()
+            };
+            audio.onerror = () => {
+                rej(new Error(`Failed load sound: ${url}`));
+            };
+        });
     });
+
+    await Promise.all(loadSounds)
 }

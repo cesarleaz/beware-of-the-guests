@@ -1,19 +1,29 @@
 import { CONFIG } from "./config";
 import { sounds } from "./soundsSetup";
 import { SPRITE } from "./spritesSetup";
+import { showDialog } from "./utils";
 
 let currentGuest = null;
 
 const originalSize = 896;
 const scale = 0.65;
 
+const possibleInputDialogs = [
+  '...',
+  'Hi human',
+  'Hello! I want to drink your blood',
+  'Today you look very juicy',
+  'Human, I want to eat you alive, so you taste better',
+  'Let me in'
+]
+
 class Guest {
-  constructor(canvas, skin, isDoppelganger) {
+  constructor(scene, skin, isDoppelganger) {
     this.skin = skin;
-    this.currentPositionX = -canvas.width;
-    this.currentPositionY = (canvas.height - originalSize * scale) + (scale * 4)
-    this.x = 0;
-    this.y = 0;
+    this.currentPositionX = -scene.x - (scene.width / 2);
+    this.currentPositionY = (scene.y + scene.height / 2) - (originalSize / 2 * scale)
+    this.x = this.currentPositionX;
+    this.y = this.currentPositionY;
     this.initialY = this.y;
     this.width = originalSize * scale;
     this.height = originalSize * scale;
@@ -40,6 +50,7 @@ class Guest {
 
     // Others
     this.openDoor = false
+    this.greet = true
   }
 
   update(scene) {
@@ -65,6 +76,10 @@ class Guest {
       // Efecto de respiración (escala de tamaño) 
       this.breathingOffset += this.breathingSpeed;
       this.scaleFactor = 1 + Math.sin(this.breathingOffset) * this.breathingAmplitude;
+
+      if (this.greet) {
+        this.arrival()
+      }
     }
 
     if (aftherTheMiddle && !this.openDoor) {
@@ -72,6 +87,14 @@ class Guest {
       this.openDoor = true
       sounds.get('door').play()
     }
+  }
+
+  async arrival() {
+    this.greet = false
+    const dialogId = Math.round(Math.random() * possibleInputDialogs.length)
+    await showDialog([
+      possibleInputDialogs[dialogId]
+    ], dialogId !== 0)
   }
 
   draw(ctx) {
@@ -83,9 +106,13 @@ class Guest {
   }
 }
 
-export function renderGuests(canvas, ctx, scene) {
-  if (CONFIG.PLAYING && CONFIG.CONTINUE_WORKING && currentGuest === null) {
-    currentGuest = new Guest(canvas, SPRITE.GUEST);
+export function renderGuests(ctx, scene) {
+  if (CONFIG.SPAWN_AGENT) {
+    currentGuest = null
+  }
+
+  if (CONFIG.PLAYING && CONFIG.CONTINUE_WORKING && currentGuest === null && !CONFIG.SPAWN_AGENT) {
+    currentGuest = new Guest(scene, SPRITE.GUEST);
   }
 
   if (currentGuest) {
